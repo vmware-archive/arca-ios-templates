@@ -1,0 +1,59 @@
+<<levo filename:ModelListViewController.m directory:project/{{.ProjectName}}/controllers>>
+#import "ModelListViewController.h"
+#import <ArcaCore/ArcaCore.h>
+#import "ModelInstancesViewController.h"
+#import "ModelListCell.h"
+
+@interface ModelListViewController ()
+
+@end
+
+@implementation ModelListViewController
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString:@"pushModelInstancesController"]) {
+        ModelListCell *senderCell = sender;
+        NSIndexPath *senderIndexPath = [self.collectionView indexPathForCell:senderCell];
+        ((ModelInstancesViewController *)segue.destinationViewController).modelClassName = [self modelNameForIndexPath:senderIndexPath];
+    }
+}
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    NSPersistentStoreCoordinator *coordinator = [ArcaPersistentStoreCoordinator defaultCoordinator];
+    
+    return coordinator.managedObjectModel.entities.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ModelListCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ModelListCell" forIndexPath:indexPath];
+    
+    [cell setModelName:[self modelNameForIndexPath:indexPath]];
+    
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self performSegueWithIdentifier:@"pushModelInstancesController" sender:[self.collectionView cellForItemAtIndexPath:indexPath]];
+}
+
+- (NSString *)modelNameForIndexPath:(NSIndexPath *)indexPath {
+    return ((NSEntityDescription *)[ArcaPersistentStoreCoordinator defaultCoordinator].managedObjectModel.entities[indexPath.item]).managedObjectClassName;
+}
+
+- (NSString *)modelDescriptionForIndexPath:(NSIndexPath *)indexPath {
+    return @"something";
+}
+
+@end
+<<levo>>
+<<levo filename:ModelListViewController.h directory:project/{{.ProjectName}}/controllers>>
+#import <UIKit/UIKit.h>
+
+@interface ModelListViewController : UICollectionViewController
+
+@end
+<<levo>>

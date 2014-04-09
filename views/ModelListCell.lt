@@ -1,0 +1,32 @@
+<<levo filename:ModelListCell.m directory:project/{{.ProjectName}}/views>>
+#import "ModelListCell.h"
+
+@interface ModelListCell ()
+
+@property (nonatomic, strong) IBOutlet UILabel *modelNameLabel;
+@property (nonatomic, strong) IBOutlet UILabel *modelDescriptionLabel;
+
+@end
+
+@implementation ModelListCell
+
+- (void)setModelName:(NSString *)modelName {
+    self.modelNameLabel.text = modelName;
+}
+
+- (void)setModelDescription:(NSString *)modelDescription {
+    self.modelDescriptionLabel.text = modelDescription;
+}
+
+@end
+<<levo>>
+<<levo filename:ModelListCell.h directory:project/{{.ProjectName}}/views>>
+#import <UIKit/UIKit.h>
+
+@interface ModelListCell : UICollectionViewCell
+
+- (void)setModelName:(NSString *)modelName;
+- (void)setModelDescription:(NSString *)modelDescription;
+
+@end
+<<levo>>

@@ -1,0 +1,32 @@
+{{$project := .}}
+{{range $index, $model := .Models}}
+<<levo filename:{{$model.Name}}.m directory:project/{{$project.ProjectName}}/models>>
+#import "{{$model.Name}}.h"
+
+@implementation {{$model.Name}}
+
++ (NSString *)primaryKeyPath {
+    return @"id";
+}
+
++ (NSDictionary *)objectToSourceKeyMap {
+	    return @{
+{{range $propertyIndex, $property := $model.Properties}}!>
+			@"{{camelcase $property.LocalIdentifier}}" : @"{{$property.RemoteIdentifier}}",
+{{end}}!>
+		};
+}
+
+@end
+<<levo>>
+{{end}}
+{{$project := .}}
+{{range $index, $model := .Models}}
+<<levo filename:{{$model.Name}}.h directory:project/{{$project.ProjectName}}/models>>
+#import <UIKit/UIKit.h>
+#import <ArcaCore/ArcaCore.h>
+@interface {{$model.Name}} : ArcaManagedObject
+
+@end
+<<levo>>
+{{end}}

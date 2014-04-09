@@ -1,0 +1,26 @@
+<<levo filename:ModelInstanceCell.m directory:project/{{.ProjectName}}/views>>
+#import "ModelInstanceCell.h"
+
+@interface ModelInstanceCell ()
+
+@property (nonatomic, weak) IBOutlet UILabel *idLabel;
+
+@end
+
+@implementation ModelInstanceCell
+
+- (void)setId:(id)identifier {
+    self.idLabel.text = [identifier description];
+}
+
+@end
+<<levo>>
+<<levo filename:ModelInstanceCell.h directory:project/{{.ProjectName}}/views>>
+#import <UIKit/UIKit.h>
+
+@interface ModelInstanceCell : UICollectionViewCell
+
+- (void)setId:(id)identifier;
+
+@end
+<<levo>>

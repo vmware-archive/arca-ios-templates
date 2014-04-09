@@ -1,0 +1,111 @@
+<<levo filename:ModelInstancesViewController.m directory:project/{{.ProjectName}}/controllers>>
+#import "ModelInstancesViewController.h"
+#import <ArcaCore/ArcaCore.h>
+#import <ArcaBridge/HTTPOperation.h>
+#import "ModelInstanceCell.h"
+#import "InstanceDetailViewController.h"
+
+@interface ModelInstancesViewController ()
+
+@property (nonatomic, strong, readonly) Class managedObjectClass;
+@property (nonatomic, strong) NSArray *instances;
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+
+@end
+
+@implementation ModelInstancesViewController
+@synthesize managedObjectClass = _managedObjectClass;
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString:@"pushInstanceDetailController"]) {
+        ArcaManagedObject *selectedObject = sender;
+        InstanceDetailViewController *detailViewController = segue.destinationViewController;
+        [detailViewController setInstance:selectedObject];
+    }
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    self.navigationItem.title = self.modelClassName;
+    
+    [self refreshObjectInstances];
+}
+
+- (void)setModelClassName:(NSString *)modelClassName {
+    _modelClassName = modelClassName;
+    [self retrieveObjectsFromRemote];
+}
+
+- (Class)managedObjectClass {
+    if (!_managedObjectClass) {
+        _managedObjectClass = NSClassFromString(self.modelClassName);
+    }
+    return _managedObjectClass;
+}
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.instances.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ModelInstanceCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"InstanceCell" forIndexPath:indexPath];
+    
+    [cell setId:[self instanceForIndexPath:indexPath].primaryKey];
+    
+    return cell;
+}
+
+- (void)refreshObjectInstances {
+    self.instances = [self.managedObjectClass objectsMatchingPredicate:nil sortDescriptors:nil faultingData:YES inContext:[[ArcaContextFactory defaultFactory] mainThreadContext] error:nil];
+    
+    NSLog(@"instances: %@", self.instances);
+}
+
+- (ArcaManagedObject *)instanceForIndexPath:(NSIndexPath *)indexPath {
+    return self.instances[indexPath.item];
+}
+
+- (void)retrieveObjectsFromRemote {
+	[HTTPOperation setBaseURL:[NSURL URLWithString:@"http://localhost:3000/"]];
+	HTTPOperation *modelOperation = [HTTPOperation new];
+
+	modelOperation.method = HTTPMethodGet;
+{{range $index, $model := .Models}}
+	if ([self.modelClassName isEqualToString:@"{{$model.Name}}"]) {
+	   modelOperation.path = @"{{camelcase $model.Name | lower | pluralize}}";
+	}
+{{end}}
+
+	self.managedObjectContext = [[ArcaContextFactory defaultFactory] privateQueueContext];
+	[modelOperation setCompletionBlock:^(HTTPOperation *__weak HTTPOperation) {
+		NSError *error;
+		[ArcaObjectFactory objectsFromSourceData:HTTPOperation.returnedObject forObjectClass:self.managedObjectClass inContext:self.managedObjectContext error:&error];
+		if (error) {
+			NSLog(@"got error when making objects: %@", error);
+		}
+		[self.managedObjectContext save:nil];
+		[self refreshObjectInstances];
+		[self.collectionView reloadData];
+	}];
+	[[HTTPOperation networkingQueue] addOperation:modelOperation];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self performSegueWithIdentifier:@"pushInstanceDetailController" sender:[self instanceForIndexPath:indexPath]];
+}
+
+@end
+<<levo>>
+
+<<levo filename:ModelInstancesViewController.h directory:project/{{.ProjectName}}/controllers>>
+#import <UIKit/UIKit.h>
+
+@interface ModelInstancesViewController : UICollectionViewController
+
+@property (nonatomic, strong) NSString *modelClassName;
+
+@end
+<<levo>>

@@ -1,0 +1,38 @@
+<<levo filename:InstanceDetailCell.m directory:project/{{.ProjectName}}/views>>
+#import "InstanceDetailCell.h"
+
+@interface InstanceDetailCell ()
+
+@property (nonatomic, weak) IBOutlet UILabel *nameLabel;
+@property (nonatomic, weak) IBOutlet UILabel *typeLabel;
+@property (nonatomic, weak) IBOutlet UILabel *valueLabel;
+
+@end
+
+@implementation InstanceDetailCell
+
+- (void)setName:(NSString *)name {
+    self.nameLabel.text = name;
+}
+
+- (void)setType:(NSString *)type {
+    self.typeLabel.text = type;
+}
+
+- (void)setValue:(NSString *)value {
+    self.valueLabel.text = value;
+}
+
+@end
+<<levo>>
+<<levo filename:InstanceDetailCell.h directory:project/{{.ProjectName}}/views>>
+#import <UIKit/UIKit.h>
+
+@interface InstanceDetailCell : UICollectionViewCell
+
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *type;
+@property (nonatomic, strong) NSString *value;
+
+@end
+<<levo>>

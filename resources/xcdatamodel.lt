@@ -1,0 +1,17 @@
+<<levo filename:contents directory:project/{{.ProjectName}}/resources/{{.ProjectName}}.xcdatamodeld/{{.ProjectName}}.xcdatamodel>>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3396" systemVersion="12F37" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+{{range $index, $model := .Models}}
+    <entity name="{{$model.Name}}" representedClassName="{{$model.Name}}" syncable="YES">
+	{{range $index, $property := $model.Properties}}
+        <attribute name="{{camelcase $property.LocalIdentifier}}" optional="YES" attributeType="{{toCoreDataType $property.PropertyType}}" defaultValueString="0" syncable="YES"/>
+	{{end}}
+    </entity>
+{{end}}
+    <elements>
+{{range $index, $model := .Models}}
+        <element name="{{$model.Name}}" positionX="0" positionY="0" width="0" height="0"/>
+{{end}}
+    </elements>
+</model>
+<<levo>>

@@ -1,0 +1,43 @@
+<<levo filename:InstanceDetailViewController.m directory:project/{{.ProjectName}}/controllers>>
+#import "InstanceDetailViewController.h"
+#import "InstanceDetailCell.h"
+
+@implementation InstanceDetailViewController
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.instance.entity.properties.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    InstanceDetailCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"InstanceDetailCell" forIndexPath:indexPath];
+    
+    NSAttributeDescription *property = [self propertyForIndexPath:indexPath];
+    
+    [cell setName:property.name];
+    [cell setType:property.attributeValueClassName];
+    id value = [self.instance valueForKey:property.name];
+    [cell setValue:[NSString stringWithFormat:@"%@", value]];
+    
+    return cell;
+}
+
+- (NSAttributeDescription *)propertyForIndexPath:(NSIndexPath *)indexPath {
+    return self.instance.entity.properties[indexPath.item];
+}
+
+@end
+<<levo>>
+<<levo filename:InstanceDetailViewController.h directory:project/{{.ProjectName}}/controllers>>
+#import <UIKit/UIKit.h>
+#import <ArcaCore/ArcaCore.h>
+
+@interface InstanceDetailViewController : UICollectionViewController
+
+@property (nonatomic, strong) ArcaManagedObject *instance;
+
+@end
+<<levo>>
